@@ -43,7 +43,7 @@ eventEnviar.SetStageLogic(0, function (e) { //at first stage step do....
     console. log('\tDo logic from event');     
     e.AlertTo('Storage Supervisor')
     e.SetCurrentState(0); //change to StockRevision state
-});
+}); 
 
 // console.log(event.CurrentStage);
 eventEnviar.Start();
