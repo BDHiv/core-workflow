@@ -135,7 +135,7 @@ class Event {
   {
      console.log("");
      console.log("Continue with event: %s", newEvent.name);   
-     newEvent.Start();    
+     newEvent.Start(this);    
   }
 
   AlertTo(roles)

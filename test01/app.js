@@ -1,5 +1,8 @@
+var prompt = require('prompt');
+var util = require('util');
 var mainEvent = require('./event');
 var mainDestiny = require('./destiny');
+
 const readline = require('readline');
 const rl = readline.createInterface({input: process.stdin, output: process.stdout});
 
@@ -8,9 +11,9 @@ const eventRechazar = new mainEvent.Event();
 eventRechazar.name = "-= Rechazar Encomienda =-";
 eventRechazar.descripcion = "rechazo de un paquete por X motivo";
 eventRechazar.onStart = function (e) {
-    console.log('\t On start REJECTED event');    
-    console.log(e);
-   //  e.MessageTo("someEmails@gmail.com", e.name);
+    console.log('\tOn start REJECTED event');   
+    var msg = "dear user this item was rejected: " + e.MainObject.description + ", on stage : " + e.CurrentStage.name;
+    e.MessageTo("someEmails@gmail.com", msg);
 }
 // --------------------------
 
@@ -22,7 +25,11 @@ var solicitud = { //may be anything, even a array
 }
 
 //must order be important !!
-var destinys = new mainDestiny.Destiny("Ensure storage amount", "Send to customs", "Send to airport", "Send to client", "Received by client");
+var destinys = new mainDestiny.Destiny("Ensure storage amount", 
+"Send to customs", 
+"Send to airport", 
+"Send to client", 
+"Received by client");
 
 const eventEnviar = new mainEvent.Event(solicitud);
 eventEnviar.name = "-= Enviar Encomienda =-";
@@ -45,23 +52,49 @@ eventEnviar.SetStageLogic(0, function (e) { //at first stage step do....
     e.SetCurrentState(0); //change to StockRevision state
 }); 
 
+
+eventEnviar.SetStageLogic(1, function (e) { //at send to custom stage step do....      
+    e.AlertTo('Transporters')
+   // e.SetCurrentState(0); //change to StockRevision state
+}); 
+
+
 // console.log(event.CurrentStage);
 eventEnviar.Start();
-eventEnviar.Next();
 
- rl. question('USER INTERACTION = 1: Hay Stock, 2: No Hay Stock ', (answer) => 
+// var aaa;
+// prompt.start();
+// prompt.get(['username'], function (err, result) 
+// {
+//     if (err) 
+//     { return onErr(err); }
+//     //console.log('USER INTERACTION = 1: Hay Stock, 2: No Hay Stock =');
+//     // console.log(' User Response: ' + result.username);    
+//     this.aaa = result.username;
+// });
+
+// function onErr(err) {
+//     console.log(err);
+//     return 1;
+// }
+
+//   console.log(aaa);    
+
+
+ rl.question('USER INTERACTION = 1: Hay Stock, 2: No Hay Stock ', (answer) => 
     {
         if (answer == 2) {
             // no product inventary logic supervisor   
-            eventRechazar.descripcion = "sin inventario";   
-            //eventEnviar.SetCurrentState("Rejected");       
+            eventEnviar.SetCurrentState(1); //Rejected 
+            eventRechazar.descripcion = "sin inventario";                     
             eventEnviar.ContinueWith(eventRechazar);
         }
         if(answer == 1) {
+            eventEnviar.SetCurrentState(2); 
             eventEnviar.Next();
         }
         rl.close();
     });
 
 
-//console.log(event);
+// console.log("ENDcl WORKFLOW!");
