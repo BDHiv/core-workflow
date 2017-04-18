@@ -1,37 +1,30 @@
 var destiny = require('./destiny');
-
-class EventState {
-  constructor(eventName)
-  {
-    this.name = eventName;
-    this.someElemment = 'test';
-    this.someThingElse = 123;
-  }
-}
-
-class UserProfile {
-  constructor(userProfileName)
-  {
-    this.name = userProfileName;
-    // this.someElemment = 'test'; this.someThingElse = 123;
-  }
-}
+var eventState = require('./eventState');
 
 class Event {
-
   constructor(mainObject) {
     this.MainObject = mainObject;
     this.Destiny =  new destiny.Destiny();
     this.CurrentStage = new destiny.DestinyStage();
-    this.CurrentState = new EventState();
+    this.CurrentState = new eventState.EventState();
     this.stageIndex = -1;
   }
+  
+  
+ApplyCondition(condition)  
+{
+    if (!condition.target)
+      throw new Error("Target not defined on condition!");
+
+      //create a conditions dictionary to call on condition.target when its  value changed
+}
+
 
   SetStates(...states)
   {
     this.States = []; //una lista de estados de evento
     states.forEach(function (element) {
-      var state = new EventState(element);
+      var state = new eventState.EventState(element);
       this.States.push(state);
     }, this);
   }
@@ -69,29 +62,48 @@ class Event {
     }, this);
   }
 
-  get area() {
-    return this.Next();
+ // get area() {
+   // return this.Next();
+ // }
+
+  Back() 
+  {
+        if (!this.Destiny || !this.Destiny.Stages || this.Destiny.Stages.length == 0)
+        {
+          console.log("\t\t %s event have no stages!", this.name);
+          return;
+        }
+        
+        this.stageIndex--;       
+     
+        this.CurrentStage = this.Destiny.Stages[this.stageIndex];
+        console.log("NEXT STAGE down to: " + this.CurrentStage.name);
+        this.manageChangeStage(this.stageIndex - 1, this.stageIndex);
+     
+      // todo: validar que no sobrepase el lengt
   }
 
-  Back() {}
+  NextToStage(indexStage)
+  {
+    //goto X stage
 
-  NextToStage()
-  {}
+  }
 
-  Next() {  
+  Next()
+   {  
       if (!this.Destiny || !this.Destiny.Stages || this.Destiny.Stages.length == 0)
         {
           console.log("\t\t %s event have no stages!", this.name);
           return;
         }
 
-     this.stageIndex++;       
+        this.stageIndex++;       
      
         this.CurrentStage = this.Destiny.Stages[this.stageIndex];
-        console.log("Next STAGE to: " + this.CurrentStage.name);
-        this.manageChangeStage(this.stageIndex-1, this.stageIndex);
+        console.log("Next STAGE to: %d.- %s ",this.stageIndex, this.CurrentStage.name);
+        this.manageChangeStage(this.stageIndex - 1, this.stageIndex);
      
-      // todo: validar que no sobrepase el lengt
+      // todo: validar que no sobrepase el length
   }
 
   SetStageLogic(indexStage, logicFunction)
@@ -99,25 +111,53 @@ class Event {
      this.Destiny.Stages[indexStage].doLogic = logicFunction;
   }
 
- SetStateLogic(indexState, logicFunction)
+  SetStateAndStageLogic(indexStage, indexState, logicFunction)
+  {
+     this.States[indexState].SetLogicOnStage(indexStage, logicFunction);
+  } 
+
+  SetStateLogic(indexState, logicFunction)
   {
      this.States[indexState].doLogic = logicFunction;
   }
   
-  manageChangeStage(old, neww)
+  manageChangeStage(old, newStageIndex)
   {       
-      if (this.Destiny.Stages[neww].doLogic)
+      if (this.Destiny.Stages[newStageIndex].doLogic)
       {
         console.log('\tStage have logic!')
-        this.Destiny.Stages[neww].doLogic(this);
+        this.Destiny.Stages[newStageIndex].doLogic(this);
       }
+
+    if (this.CurrentState.StagesLogic)
+    {
+        var stageLogic = this.CurrentState.StagesLogic.filter(function(x) 
+        { 
+          return x.idStage = newStageIndex
+        });
+
+     
+
+      if (stageLogic)
+      {
+          stageLogic[0].action(this);
+      }
+    }
+
+      
+      //if (this.CurrentState.StagesLogic) StagesLogic
+//  console.log(this.Stat);
+     // if (this.CurrentState.StagesLogic)
   }
 
   Stop()
-  {}
+  {
+
+  }
 
   Start(fromEvent)
   {
+     console.log("");
     console.log("Starting %s workflow!!...", this.name);
     if (this.stageIndex > -1)
       throw new Error("Event doesn't finished yet!");
@@ -147,12 +187,18 @@ class Event {
   MessageTo(targetInformations, message)
   {
      console.log('\t\tSend message: %s to: %s', message,targetInformations);
-      //send notifications to all users in roles
+      //send notifications to all users in roles with a free message
   }
 }
 
-exports.world = function () {
-  console.log('Hellodddd World');
+class UserProfile {
+  constructor(userProfileName)
+  {
+    this.name = userProfileName;
+    // this.someElemment = 'test'; 
+    //this.someThingElse = 123;
+  }
 }
+
 
 exports.Event = Event;

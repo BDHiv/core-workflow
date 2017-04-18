@@ -10,7 +10,8 @@ class DestinyStage
 class Destiny
 {
     constructor(...stages) {    
-        this.Stages = [];       
+        this.Stages = [];    
+           
         stages.forEach(function(element) {            
             var stage = new DestinyStage(element, null);
             this.Stages.push(stage);   
