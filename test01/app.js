@@ -5,7 +5,7 @@ var mainDestiny = require('./destiny');
 const readline = require('readline');
 const rl = readline.createInterface({input: process.stdin, output: process.stdout});
 
-// --------------------------
+// --------------------------  rorellana from windows
 const eventRechazar = new mainEvent.Event();  //a event without stages or states
 eventRechazar.name = "-= Rechazar Encomienda =-";
 eventRechazar.description = "rechazo de un paquete por X motivo";
